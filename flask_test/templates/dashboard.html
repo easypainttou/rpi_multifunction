@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>RIS Dashboard</title>
+		<link href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+		<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap-theme.min.css"></script>
+		<script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="https://code.highcharts.com/highcharts.js"></script>
+	</head>
+	<body>
+		<div class="container" >
+			<div class="jumbotron">
+				<h1>RIS</h1>
+				<p>Rpi info sys,rpi温湿度传感及gpio控制服务器，采用了flask，wiringpi</p>
+			</div>
+			
+			<!--温湿度-->
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h1 class="panel-title">气象</h1>		
+				</div>
+				<div class="panel-body">
+					<button type="button" class="btn btn-default btn-lg" id="dht-update">更新</button>
+					<h3>当前：</h3>
+					<table class="table">
+						<tr><td>温度</td><td>11</td></tr>
+						<tr><td>湿度</td><td>11</td></tr>
+					</table>
+					<h3>过去：</h3>
+					<div id="dht-chart1"></div>
+					<div id="dht-chart2"></div>
+				</div>
+			</div>
+			
+			<!--gpio控制-->
+			<div class="panel panel-primary">
+				<div class="panel-heading">
+					<h1 class="panel-title">GPIO</h1>
+				</div>
+				<div class="panel-body">
+					<p>red</p>
+					<button type="button" class="btn btn-default btn-lg" id="r-on">开</button>
+					<button type="button" class="btn btn-default btn-lg" id="r-off">关</button>
+					<p>green</p>
+					<button type="button" class="btn btn-default btn-lg" id="g-on">开</button>
+					<button type="button" class="btn btn-default btn-lg" id="g-off">关</button>
+					<p>blue</p>
+					<button type="button" class="btn btn-default btn-lg" id="b-on">开</button>
+					<button type="button" class="btn btn-default btn-lg" id="b-off">关</button>
+				</div>
+			</div>
+			
+			<!--硬件信息-->
+			<div class="panel panel-info">
+				<div class="panel-heading">
+					<h1 class="panel-title">RPI info</h1>
+				</div>
+				<div class="panel-body">
+					<button type="button" class="btn btn-default btn-lg" id="info-update">更新</button>
+					<table class="table">
+						<tr><td>cpu温度</td><td id="cpu-tem">11</td></tr>
+						<tr><td>cpu温度</td><td>11</td></tr>
+					</table>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
+<script>
+var cnt=1;
+
+//图标
+function loadChart1(data){
+	var jss=eval("("+data+")");
+   var title = {
+      text: '周围环境的温度'   
+   };
+   var subtitle = {
+      text: 'Source: rpi'
+   };
+   var xAxis = {
+      categories: jss.time
+   };
+   var yAxis = {
+      title: {
+         text: 'Temperature (\xB0C)'
+      },
+      plotLines: [{
+         value: 0,
+         width: 1,
+         color: '#808080'
+      }]
+   };   
+
+   var tooltip = {
+      valueSuffix: '\xB0C'
+   }
+
+   var legend = {
+      layout: 'vertical',
+      align: 'right',
+      verticalAlign: 'middle',
+      borderWidth: 0
+   };
+
+   var series =  [
+      {
+         name: '温度',
+         data: jss.data
+      }
+   ];
+
+   var json = {};
+
+   json.title = title;
+   json.subtitle = subtitle;
+   json.xAxis = xAxis;
+   json.yAxis = yAxis;
+   json.tooltip = tooltip;
+   json.legend = legend;
+   json.series = series;
+
+   $('#dht-chart1').highcharts(json);
+}
+
+//GPIO控制按钮
+$("#r-on").click(function(){
+	$.post("/print",{message:"r on"},function(data){
+		alert(data);
+	});
+});
+$("#r-off").click(function(){
+	$.post("/print",{message:"r off"},function(data){
+		alert(data);
+	});
+});
+$("#g-on").click(function(){
+	$.post("/print",{message:"g on"},function(data){
+		alert(data);
+	});
+});
+$("#g-off").click(function(){
+	$.post("/print",{message:"g off"},function(data){
+		alert(data);
+	});
+});
+$("#b-on").click(function(){
+	$.post("/print",{message:"b on"},function(data){
+		alert(data);
+	});
+});
+$("#b-off").click(function(){
+	$.post("/print",{message:"b off"},function(data){
+		alert(data);
+		//$("#cpu-tem").html(233);
+	});
+});
+
+//Update按钮
+$("#dht-update").click(function(){
+	$.post("/chart",{message:"dht"},function(data){
+		//alert(data);
+		loadChart1(data);
+	});
+});
+$("#info-update").click(function(){
+	$.post("/print",{message:"info"},function(data){
+		//alert(data);
+		$("#cpu-tem").html(cnt);
+		cnt++;
+	});
+});
+
+
+
+$(document).ready(function(){
+	$.post("/chart",{message:"dht"},function(data){
+		//alert(data);
+		loadChart1(data);
+	});
+});
+
+
+
+</script>
