@@ -1,2 +1,3 @@
 # rpi_multifunction
-树莓派温湿度监控及GPIO控制服务器
+
+one IoT system using Raspberry Pi
